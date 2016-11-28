@@ -95,7 +95,7 @@ check_arch
 # print error if type fails and exit with >0 exit status
 check_prerequisites ()
 {
-if [[ $SYSTEM_OK == 1 ]] ; then
+if [[ ${SYSTEM_OK} == 1 ]] ; then
 	printf "	System already checked for prerequisites, all ok.\n"
 	return 0
 else
@@ -120,7 +120,7 @@ fi
 # Probably not the BEST way to check, but it gets the job done
 check_vanilla_toolchain ()
 {
-if [[ $GENTOO_PASS == 1 || $GENERIC_TRUE == 1 ]] ; then
+if [[ ${GENTOO_PASS} == 1 || ${GENERIC_TRUE} == 1 ]] ; then
 	printf "	System already passed compiler check.\n"
 else
 	unset GENTOO_TRUE
