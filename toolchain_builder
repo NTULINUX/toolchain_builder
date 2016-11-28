@@ -18,9 +18,7 @@
 # TODO: Finish initial toolchain
 # TODO: Finish Binutils 2nd/3rd pass (Gold linker + LTO + ISL)
 # TODO: Glibc 2nd/3rd pass
-# TODO: GCC patch
 # TODO: GCC 2nd/3rd pass (Gold linker + LTO + ISL)
-# TODO: Change GCC to use linker in TOOLCHAIN_BINDIR, NOT HOST
 # TODO: Possible long-term reach goal: Create a small chroot environment using git toolchain
 
 # printf because this is a C program (not really, just don't like echo)
@@ -542,6 +540,7 @@ first_pass_binutils ()
 	printf "	Building first pass Binutils...\n"
 	sleep 1
 
+	cp -pr ${ISL_TOOLCHAIN_SRCDIR} ${BINUTILS_TOOLCHAIN_SRCDIR}/
 	cd ${BINUTILS_TOOLCHAIN_SRCDIR}
 
 if [[ ! -d "build" ]] ; then
@@ -555,8 +554,10 @@ fi
 
 	../configure \
 	--prefix=${TOOLCHAIN_BINDIR}/usr \
+	--enable-gold \
+	--enable-lto \
+	--with-isl \
 	--disable-nls \
-	--without-isl \
 	--disable-gdb \
 	--disable-werror \
 	--disable-shared || \
@@ -707,6 +708,32 @@ prepare_gcc ()
 {
 	maybe_pic_patch_gcc
 	maybe_fix_ld_linker_path
+
+if [[ ! -d ${GCC_TOOLCHAIN_SRCDIR}/gmp ]] ; then
+	printf "	Copying GMP to GCC...\n"
+
+	cp -pr {GMP_TOOLCHAIN_SRCDIR} ${GCC_TOOLCHAIN_SRCDIR}/ || \
+	printf "	Error copying GMP to GCC.${REPORT_BUG_EXIT}"
+
+elif [[ ! -d ${GCC_TOOLCHAIN_SRCDIR}/mpfr ]] ; then
+	printf "	Copying MPFR to GCC...\n"
+
+	cp -pr {MPFR_TOOLCHAIN_SRCDIR} ${GCC_TOOLCHAIN_SRCDIR}/ || \
+	printf "	Error copying MPFR to GCC.${REPORT_BUG_EXIT}"
+
+elif [[ ! -d ${GCC_TOOLCHAIN_SRCDIR}/mpc ]] ; then
+	printf "	Copying MPC to GCC...\n"
+
+	cp -pr {MPC_TOOLCHAIN_SRCDIR} ${GCC_TOOLCHAIN_SRCDIR}/ || \
+	printf "	Error copying MPC to GCC.${REPORT_BUG_EXIT}"
+
+elif [[ ! -d ${GCC_TOOLCHAIN_SRCDIR}/isl ]] ; then
+	printf "	Copying ISL to GCC...\n"
+
+	cp -pr {ISL_TOOLCHAIN_SRCDIR} ${GCC_TOOLCHAIN_SRCDIR}/ || \
+	printf "	Error copying ISL to GCC.${REPORT_BUG_EXIT}"
+
+fi
 }
 
 gcc_first_pass ()
@@ -723,6 +750,10 @@ gcc_first_pass ()
 	--prefix=${TOOLCHAIN_BINDIR}/usr \
 	--with-local-prefix=${TOOLCHAIN_BINDIR}/usr \
 	--with-native-system-header-dir=${TOOLCHAIN_BINDIR}/usr/include \
+	--enable-languages=c,c++ \
+	--enable-gold \
+	--enable-lto \
+	--with-isl \
 	--disable-nls \
 	--disable-shared \
 	--disable-multilib \
@@ -733,9 +764,7 @@ gcc_first_pass ()
 	--disable-libssp \
 	--disable-libvtv  \
 	--disable-libstdcxx-pch \
-	--enable-languages=c,c++ \
 	--disable-werror \
-	--without-isl \
 	--disable-libcilkrts \
 	--disable-libitm \
 	--disable-libsanitizer || \
@@ -781,5 +810,4 @@ install_linux_headers
 # TODO: Change to determine
 # first_pass_glibc
 
-# FIXME: Uses host linker
 # determine_pass_gcc
