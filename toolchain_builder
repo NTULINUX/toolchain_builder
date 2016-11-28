@@ -240,7 +240,6 @@ GCC_PIC_PATCH="${TOOLCHAIN_PATCHDIR}/gcc-libstdc-pic.patch"
 # End of user modifiable variables
 #
 
-
 #
 # Fetch sources
 #
@@ -365,6 +364,9 @@ fetch_all ()
 	fetch_isl
 }
 
+#
+# End of fetch sources
+#
 
 #
 # Update if present, fresh download if not
@@ -430,6 +432,10 @@ check_src ()
 	check_gcc_srcdir
 }
 
+#
+# End of check sources
+#
+
 init_src ()
 {
 	printf "	Creating source work directory...\n"
@@ -451,7 +457,6 @@ else
 	printf "	Please report any bugs to the author of this program.\n"
 	init_src
 fi
-
 
 #
 # This is where the building starts
@@ -610,6 +615,10 @@ fi
 	GLIBC_FIRST_PASS_SUCCESS=1
 }
 
+#
+# Prepare GCC for build
+#
+
 # Not the best way, may break with future GCC updates
 # Works for now, suggestions welcome
 check_pic_patch_gcc ()
@@ -741,6 +750,14 @@ elif [[ ! -d ${GCC_TOOLCHAIN_SRCDIR}/isl ]] ; then
 fi
 }
 
+#
+# End of GCC preparation
+#
+
+#
+# First pass of GCC
+#
+
 gcc_first_pass ()
 {
 	printf "	Building first pass C/C++ compiler...\n"
@@ -804,6 +821,13 @@ else
 fi
 }
 
+#
+# End of build functions
+#
+
+#
+# Execute build
+#
 
 prepare_libdir
 
