@@ -305,7 +305,8 @@ fetch_gmp ()
 {
 if [[ ! -d "${GMP_TOOLCHAIN_SRCDIR}" ]] ; then
 	printf "	Downloading GMP...\n"
-	wget -c ${GMP_LOC} || { printf "	Error downloading GMP-${GMP_VER}. Exiting.\n" ; exit 1 ; }
+	wget -c ${GMP_LOC} || \
+	{ printf "	Error downloading GMP-${GMP_VER}. Exiting.\n" ; exit 1 ; }
 	tar xf gmp-${GMP_VER}.tar.xz
 	mv -v gmp-${GMP_VER} gmp
 else
@@ -317,7 +318,8 @@ fetch_mpfr ()
 {
 if [[ ! -d "${MPFR_TOOLCHAIN_SRCDIR}" ]] ; then
 	printf "	Downloading MPFR...\n"
-	wget -c ${MPFR_LOC} || { printf "	Error downloading MPFR-${MPFR_VER}. Exiting.\n" ; exit 1 ; }
+	wget -c ${MPFR_LOC} || \
+	{ printf "	Error downloading MPFR-${MPFR_VER}. Exiting.\n" ; exit 1 ; }
 	tar xf mpfr-${MPFR_VER}.tar.xz
 	mv -v mpfr-${MPFR_VER} mpfr
 else
@@ -329,7 +331,8 @@ fetch_mpc ()
 {
 if [[ ! -d "${MPC_TOOLCHAIN_SRCDIR}" ]] ; then
 	printf "	Downloading MPC...\n"
-	wget -c ${MPC_LOC} || { printf "	Error downloading MPC-${MPC_VER}.\n Exiting.\n" ; exit 1 ; }
+	wget -c ${MPC_LOC} || \
+	{ printf "	Error downloading MPC-${MPC_VER}.\n Exiting.\n" ; exit 1 ; }
 	tar zxf mpc-${MPC_VER}.tar.gz
 	mv -v mpc-${MPC_VER} mpc
 else
@@ -341,7 +344,8 @@ fetch_isl ()
 {
 if [[ ! -d "${ISL_TOOLCHAIN_SRCDIR}" ]] ; then
 	printf "	Downloading ISL...\n"
-	wget -c ${ISL_LOC}
+	wget -c ${ISL_LOC} || \
+	{ printf "      Error downloading ISL-${ISL_VER}.\n Exiting.\n" ; exit 1 ; }
 	tar xf isl-${ISL_VER}.tar.xz
 	mv -v isl-${ISL_VER} isl
 else
@@ -430,7 +434,8 @@ init_src ()
 {
 	printf "	Creating source work directory...\n"
 	# In case bash screwed up at detecting write access?
-	mkdir -p ${TOOLCHAIN_SRCDIR} || { printf "	Failed to create ${TOOLCHAIN_SRCDIR}. Exiting.\n" ; exit 1 ; }
+	mkdir -p ${TOOLCHAIN_SRCDIR} || \
+	{ printf "	Failed to create ${TOOLCHAIN_SRCDIR}. Exiting.\n" ; exit 1 ; }
 	cd ${TOOLCHAIN_SRCDIR}
 	fetch_all
 }
