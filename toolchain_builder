@@ -72,7 +72,7 @@ generate_defaults ()
 	TOOLCHAIN_SRCDIR="${STARTDIR}/toolchain-src"
 	TOOLCHAIN_BINDIR="${STARTDIR}/toolchain-bin"
 	TOOLCHAIN_PATCHDIR="${STARTDIR}/patches"
-	LINUX_VER="4.8.11"
+	LINUX_VER="4.8.12"
 	GMP_VER="6.1.1"
 	MPFR_VER="3.1.5"
 	MPC_VER="1.0.3"
@@ -229,7 +229,7 @@ if [[ -d "${TOOLCHAIN_BINDIR}" && ${TOOLCHAIN_COMPLETE} != 1 && ${DEVELOPER_MODE
 	exit 0
 elif [[ -d "${TOOLCHAIN_BINDIR}" && ${TOOLCHAIN_COMPLETE} == 1 ]] ; then
 	printf "\n\tToolchain already built.\n"
-	printf "\t${TOOLCHAIN_BINDIR} must be removed manually to proceed.\n"
+	printf "\t${TOOLCHAIN_BINDIR} and\n\t${TOOLCHAIN_CONFIG} must be removed manually to proceed.\n"
 	printf "\tNothing to do. Exiting.\n"
 	exit 0
 fi
@@ -993,7 +993,8 @@ fi
 	--enable-lto \
 	--with-isl \
 	--disable-gdb \
-	--disable-werror || \
+	--disable-werror \
+	--disable-shared || \
 	{ printf "\n\tBinutils configure error. Exiting.\n" ; exit 1 ; }
 
 	make -j${CORES} || \
@@ -1070,6 +1071,7 @@ else
 fi
 
 	# libmpx fails to build (for now at least anyway, forget exact error)
+	# libsanitizer may fail to build as well, turning off to be safe
 	../configure \
 	--prefix=${TOOLCHAIN_BINDIR}/usr \
 	--with-local-prefix=${TOOLCHAIN_BINDIR}/usr \
@@ -1080,7 +1082,9 @@ fi
 	--enable-lto \
 	--with-isl \
 	--disable-libmpx \
-	--disable-multilib || \
+	--disable-libsanitizer \
+	--disable-multilib \
+	--disable-shared || \
 	{ printf "\n\tConfigure error. Exiting.\n" ; exit 1 ; }
 
 	make -j${CORES} || \
@@ -1137,7 +1141,7 @@ build_toolchain ()
 build_toolchain
 
 if [[ ${TOOLCHAIN_COMPLETE} == 1 ]] ; then
-	printf "\n\tNothing left to do.\n"
+	printf "\n\tNothing left to do. Exiting.\n"
 fi
 
 exit 0
