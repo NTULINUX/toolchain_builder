@@ -186,9 +186,9 @@ else
 			printf "\nGENTOO_PASS=${GENTOO_PASS}\n" >> ${TOOLCHAIN_CONFIG}
 		else
 			printf "\tNot vanilla GCC, this may cause a GCC build failure
-	as -fPIC and potentially other CFLAGS are known to issues.
-	You may comment the following line out at your own risk. If you do,
-	please report your success, your feedback is greatly appreciated.\n"
+\tas -fPIC and potentially other CFLAGS are known to issues.
+\tYou may comment the following line out at your own risk. If you do,
+\tplease report your success, your feedback is greatly appreciated.\n"
 		exit 1
 		fi
 	fi
@@ -1128,11 +1128,15 @@ build_toolchain ()
 
 	second_pass_gcc
 
-	printf "\n\n\tToolchain built successfully! \n\n"
-	printf "\tTo add the toolchain to your PATH, simply run the following: \n"
+	printf "\n\tToolchain built successfully! \n"
+	printf "\n\tTo add the toolchain to your PATH, simply run the following: \n"
 	printf "\texport PATH=${TOOLCHAIN_BINDIR}/usr/bin:$PATH\n"
-	printf "\tTo make sure your new toolchain is in use, run: \n"
-	printf "\t'ld --version' or 'gcc --version' without quotes.\n\n"
+	printf "\n\tTo make sure your new toolchain is in use, run: \n"
+	printf "\t'ld --version' or 'gcc --version' without quotes.\n"
+
+	printf "\n\tIf you would like to use the Gold linker by default,
+\tRun the following:\n
+\tln -sfv ${TOOLCHAIN_BINDIR}/usr/bin/ld.gold ln -sfv ${TOOLCHAIN_BINDIR}/usr/bin/ld\n"
 
 	TOOLCHAIN_COMPLETE=1
 	printf "\nTOOLCHAIN_COMPLETE=${TOOLCHAIN_COMPLETE}\n" >> ${TOOLCHAIN_CONFIG}
