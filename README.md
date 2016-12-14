@@ -9,7 +9,7 @@ Probably needs a more creative project name.
 Recent changes:
 * Lots of clean up
 * Stage 2 build of Binutils, GLIBC, and GCC
-* Kernel headers bump to 4.8.11
+* Kernel headers bump to 4.8.12
 * Misc features and function adjustments
 * Switch to Binutils master (many error fixes)
 * Switch to GLIBC master (math fixes)
