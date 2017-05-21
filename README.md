@@ -7,9 +7,8 @@ written entirely in Bash.
 Probably needs a more creative project name.
 
 Recent changes:
-* Kernel headers bump to 4.8.15
-* GMP bump to 6.1.2
-* ISL bump to 0.18
+* Kernel headers bump to 4.10.17
+* Fix sanity check for non-hardened Gentoo systems
 
 Please leave any feedback here:
 

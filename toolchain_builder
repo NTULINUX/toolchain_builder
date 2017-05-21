@@ -72,7 +72,7 @@ generate_defaults ()
 	TOOLCHAIN_SRCDIR="${STARTDIR}/toolchain-src"
 	TOOLCHAIN_BINDIR="${STARTDIR}/toolchain-bin"
 	TOOLCHAIN_PATCHDIR="${STARTDIR}/patches"
-	LINUX_VER="4.8.15"
+	LINUX_VER="4.10.17"
 	GMP_VER="6.1.2"
 	MPFR_VER="3.1.5"
 	MPC_VER="1.0.3"
@@ -122,6 +122,12 @@ else
 	generate_defaults
 fi
 
+#
+# Environmental sanity checks
+#
+
+sanity_check()
+{
 # Redirect stdout (1) and stderr (2) to /dev/null (keep quiet)
 # print error if type fails and exit with >0 exit status
 if [[ ${SYSTEM_OK} == 1 ]] ; then
@@ -170,7 +176,7 @@ else
 	unset GENERIC_TRUE
 	printf "\n\tIs this a Gentoo system?\n"
 	if [[ `ls /etc/env.d/gcc/config*` ]] ; then
-		printf "\tYes.\n" && GENTOO_TRUE=1
+		printf "\tYes. Testing the build environment...\n" && GENTOO_TRUE=1
 	else
 		printf "\tNo, assuming working toolchain.\n"
 		GENERIC_TRUE=1
@@ -180,19 +186,28 @@ else
 	unset GENTOO_PASS
 	if [[ ${GENTOO_TRUE} == 1 ]] ; then
 		GCC_ENV_CONF="`cat /etc/env.d/gcc/config*`"
-		if [[ ${GCC_ENV_CONF} == *vanilla && ${GENTOO_TRUE} == 1 ]] ; then
+		MAKE_PROFILE_TEST="`ls -la /etc/portage/make.profile`"
+		if [[ ${GCC_ENV_CONF} == *vanilla || ${MAKE_PROFILE_TEST} != *hardened* ]] ; then
 			printf "\tGood, vanilla toolchain.\n"
 			GENTOO_PASS=1
 			printf "\nGENTOO_PASS=${GENTOO_PASS}\n" >> ${TOOLCHAIN_CONFIG}
-		else
+		elif [[ ${MAKE_PROFILE_TEST} == *hardened* ]] ; then
 			printf "\tNot vanilla GCC, this may cause a GCC build failure
 \tas -fPIC and potentially other CFLAGS are known to issues.
 \tYou may comment the following line out at your own risk. If you do,
 \tplease report your success, your feedback is greatly appreciated.\n"
-		exit 1
+			exit 1
+		else
+			printf "\tError detecting the build environment.${REPORT_BUG_EXIT}"
+			exit 1
 		fi
 	fi
 fi
+}
+
+#
+# End of sanity checks
+#
 
 # If complete toolchain already exists, do not clean
 # If interrupted, always restart
@@ -506,6 +521,8 @@ else
 
 	init_toolchain_srcdir
 fi
+
+sanity_check
 
 fetch_sources
 
