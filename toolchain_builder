@@ -1300,7 +1300,7 @@ build_toolchain ()
 \t'ld --version' and 'gcc --version' without quotes.\n
 \tIf you would like to use the Gold linker by default,
 \tRun the following:
-\tln -sfv ${TOOLCHAIN_BINDIR}/usr/bin/ld.gold ln -sfv ${TOOLCHAIN_BINDIR}/usr/bin/ld\n"
+\tln -sfv ${TOOLCHAIN_BINDIR}/usr/bin/ld.gold ${TOOLCHAIN_BINDIR}/usr/bin/ld\n"
 
 	TOOLCHAIN_COMPLETE=1
 	printf "\nTOOLCHAIN_COMPLETE=${TOOLCHAIN_COMPLETE}\n" >> ${TOOLCHAIN_CONFIG}
