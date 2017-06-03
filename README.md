@@ -7,7 +7,7 @@ written entirely in Bash.
 Probably needs a more creative project name.
 
 Recent changes:
-* Kernel headers bump to 4.11.2
+* Kernel headers bump to 4.11.3
 * Fix sanity check for non-hardened Gentoo systems
 
 Please leave any feedback here:

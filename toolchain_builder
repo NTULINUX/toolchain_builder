@@ -76,8 +76,8 @@ user_defaults ()
 	TOOLCHAIN_SRCDIR="${STARTDIR}/toolchain-src"
 	TOOLCHAIN_BINDIR="${STARTDIR}/toolchain-bin"
 	TOOLCHAIN_PATCHDIR="${STARTDIR}/patches"
-	CORES=`cat /proc/cpuinfo | grep processor | wc -l`
-	LINUX_VER="4.11.2"
+	CORES=$(grep -c processor /proc/cpuinfo)
+	LINUX_VER="4.11.3"
 	GMP_VER="6.1.2"
 	MPFR_VER="3.1.5"
 	MPC_VER="1.0.3"
@@ -217,14 +217,34 @@ else
 		printf "\tCannot find m4. Exiting.\n" ; exit 1 ;
 	}
 
-	printf "\tObvious required tools found.\n"
+	printf "\tObvious required tools found.
+\tChecking git version...\n"
+	GIT_VERSION=$(git --version | awk '{print $3}')
+	GIT_VERSION_MAJOR=$(printf $GIT_VERSION | cut -d. -f1)
+	GIT_VERSION_MINOR=$(printf $GIT_VERSION | cut -d. -f2)
+	GIT_VERSION_PATCH=$(printf $GIT_VERSION | cut -d. -f3)
+
+	if [[ ${GIT_VERSION_MAJOR} -ge 1 ]] ; then
+		if [[ ${GIT_VERSION_MINOR} -ge 8 ]] ; then
+			printf "Git 1.8 or newer.\n"
+		elif [[ ${GIT_VERSION_MINOR} -eq 7 ]] ; then
+			if [[ ${GIT_VERSION_PATCH} -ge 10 ]] ; then
+				printf "Git 1.7.10 or newer\n"
+			elif [[ ${GIT_VERSION_PATCH} -le 10 ]] ; then
+					printf "Git needs to be 1.7.10 or newer. Exiting.\n"
+					exit 1
+			fi
+		fi
+	else
+		printf "\tError detecting git version.${REPORT_BUG_EXIT}"
+	fi
 
 # Only x86/amd64 are supported due to GCC hard links
 # See function check_ld_linker_path for more info
 # I'm also not interested in testing this on other architectures
 	printf "\n\tDetecting kernel bitness...\n"
 	unset ARCH_UNAME
-	ARCH_UNAME=`uname -m`
+	ARCH_UNAME=$(uname -m)
 	if [[ ${ARCH_UNAME} == *64 ]] ; then
 		printf "\t64-bit\n"
 	elif [[ ${ARCH_UNAME} == *86 ]] ; then
@@ -246,7 +266,7 @@ else
 	unset GENTOO_TRUE
 	unset GENERIC_TRUE
 	printf "\n\tIs this a Gentoo system?\n"
-	if [[ `ls /etc/env.d/gcc/config*` ]] ; then
+	if [[ $(ls /etc/env.d/gcc/config*) ]] ; then
 		printf "\tYes. Testing the build environment...\n"
 		GENTOO_TRUE=1
 	else
@@ -257,8 +277,8 @@ else
 
 	if [[ ${GENTOO_TRUE} == 1 ]] ; then
 		unset GENTOO_PASS
-		GCC_ENV_CONF="`cat /etc/env.d/gcc/config*`"
-		MAKE_PROFILE_TEST="`ls -la /etc/portage/make.profile`"
+		GCC_ENV_CONF=$(cat /etc/env.d/gcc/config*)
+		MAKE_PROFILE_TEST=$(ls -la /etc/portage/make.profile)
 		if [[ ${GCC_ENV_CONF} == *vanilla || ${MAKE_PROFILE_TEST} != *hardened* ]] ; then
 			printf "\tGood, vanilla toolchain.\n"
 			GENTOO_PASS=1
@@ -339,6 +359,11 @@ unset BINUTILS_GIT
 unset GLIBC_GIT
 unset GCC_GIT
 
+unset BINUTILS_GIT_OPTS
+unset GLIBC_GIT_OPTS
+unset GCC_GIT_OPTS
+unset WGET_OPTS
+
 unset LINUX_LOC
 unset GMP_LOC
 unset MPFR_LOC
@@ -350,7 +375,7 @@ unset GCC_PIC_PATCH
 # DO NOT MODIFY
 #
 
-BINUTILS_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/binutils-gdb"
+BINUTILS_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/binutils"
 GLIBC_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/glibc"
 GCC_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/gcc"
 GMP_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/gmp"
@@ -361,6 +386,11 @@ ISL_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/isl"
 BINUTILS_GIT="git://sourceware.org/git/binutils-gdb.git"
 GLIBC_GIT="git://sourceware.org/git/glibc.git"
 GCC_GIT="git://gcc.gnu.org/git/gcc.git"
+
+# Reduce bandwidth, speed up the cloning process
+BINUTILS_GIT_OPTS="--depth=1 -b ${BINUTILS_GIT_BRANCH} --single-branch"
+GLIBC_GIT_OPTS="--depth=1 -b ${GLIBC_GIT_BRANCH} --single-branch"
+GCC_GIT_OPTS="--depth=1 -b ${GCC_GIT_BRANCH} --single-branch"
 
 LINUX_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/linux-${LINUX_VER}"
 LINUX_LOC="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${LINUX_VER}.tar.xz"
@@ -389,25 +419,25 @@ fetch_sources ()
 
 	# Binutils sources
 if [[ ! -d "${BINUTILS_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tFetching Binutils via git...\n"
-	git clone ${BINUTILS_GIT}
+	printf "\n\tFetching Binutils via git...\n"
+	git clone ${BINUTILS_GIT_OPTS} ${BINUTILS_GIT} ${BINUTILS_TOOLCHAIN_SRCDIR}
 fi
 
 	# GLIBC sources
 if [[ ! -d "${GLIBC_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tFetching GLIBC via git...\n"
-	git clone ${GLIBC_GIT}
+	printf "\n\tFetching GLIBC via git...\n"
+	git clone ${GLIBC_GIT_OPTS} ${GLIBC_GIT} ${GLIBC_TOOLCHAIN_SRCDIR}
 fi
 
 	# GCC sources
 if [[ ! -d "${GCC_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tFetching GCC via git...\n"
-	git clone ${GCC_GIT}
+	printf "\n\tFetching GCC via git...\n"
+	git clone ${GCC_GIT_OPTS} ${GCC_GIT} ${GCC_TOOLCHAIN_SRCDIR}
 fi
 
 	# Linux sources
 if [[ ! -f "${TOOLCHAIN_SRCDIR}/linux-${LINUX_VER}.tar.xz" ]] ; then
-	printf "\tDownloading Linux sources via wget...\n"
+	printf "\n\tDownloading Linux sources via wget...\n"
 	wget -c ${LINUX_LOC} || \
 	{
 		printf "\tError downloading Linux sources. Exiting.\n" ; exit 1 ;
@@ -461,33 +491,33 @@ fi
 
 prepare_sources ()
 {
-	printf "\n\tUnpacking any sources if needed...\n"
+	printf "\tUnpacking any sources if needed...\n"
 
 if [[ ! -d "${LINUX_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tDecompressing Linux sources...\n"
+	printf "\n\tDecompressing Linux sources...\n"
 	tar xf ${TOOLCHAIN_SRCDIR}/linux-${LINUX_VER}.tar.xz -C ${TOOLCHAIN_SRCDIR}
 fi
 
 if [[ ! -d "${GMP_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tDecompressing GMP...\n"
+	printf "\n\tDecompressing GMP...\n"
 	tar xf ${TOOLCHAIN_SRCDIR}/gmp-${GMP_VER}.tar.xz -C ${TOOLCHAIN_SRCDIR}
 	mv -v ${TOOLCHAIN_SRCDIR}/gmp-${GMP_VER} ${GMP_TOOLCHAIN_SRCDIR}
 fi
 
 if [[ ! -d "${MPFR_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tDecompressing MPFR...\n"
+	printf "\n\tDecompressing MPFR...\n"
 	tar xf ${TOOLCHAIN_SRCDIR}/mpfr-${MPFR_VER}.tar.xz -C ${TOOLCHAIN_SRCDIR}
 	mv -v ${TOOLCHAIN_SRCDIR}/mpfr-${MPFR_VER} ${MPFR_TOOLCHAIN_SRCDIR}
 fi
 
 if [[ ! -d "${MPC_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tDecompressing MPC...\n"
+	printf "\n\tDecompressing MPC...\n"
 	tar zxf ${TOOLCHAIN_SRCDIR}/mpc-${MPC_VER}.tar.gz -C ${TOOLCHAIN_SRCDIR}
 	mv -v ${TOOLCHAIN_SRCDIR}/mpc-${MPC_VER} ${MPC_TOOLCHAIN_SRCDIR}
 fi
 
 if [[ ! -d "${ISL_TOOLCHAIN_SRCDIR}" ]] ; then
-	printf "\tDecompressing ISL...\n"
+	printf "\n\tDecompressing ISL...\n"
 	tar xf ${TOOLCHAIN_SRCDIR}/isl-${ISL_VER}.tar.xz -C ${TOOLCHAIN_SRCDIR}
 	mv -v ${TOOLCHAIN_SRCDIR}/isl-${ISL_VER} ${ISL_TOOLCHAIN_SRCDIR}
 fi
@@ -555,14 +585,12 @@ verify_sources ()
 # Update git repositories
 #
 
-# Have git pull run twice in case branches changed, sometimes pull needs another pass
-# Reset source trees every time just in case we changed something
 update_binutils ()
 {
 	printf "\n\tUpdating Binutils...\n"
+	rm -rf ${BINUTILS_TOOLCHAIN_SRCDIR}/*
 	cd ${BINUTILS_TOOLCHAIN_SRCDIR}
 	git reset --hard HEAD
-	git pull
 	git checkout ${BINUTILS_GIT_BRANCH}
 	git pull
 }
@@ -570,9 +598,9 @@ update_binutils ()
 update_glibc ()
 {
 	printf "\n\tUpdating GLIBC...\n"
+	rm -rf ${GLIBC_TOOLCHAIN_SRCDIR}/*
 	cd ${GLIBC_TOOLCHAIN_SRCDIR}
 	git reset --hard HEAD
-	git pull
 	git checkout ${GLIBC_GIT_BRANCH}
 	git pull
 }
@@ -580,9 +608,9 @@ update_glibc ()
 update_gcc ()
 {
 	printf "\n\tUpdating GCC...\n"
+	rm -rf ${GCC_TOOLCHAIN_SRCDIR}/*
 	cd ${GCC_TOOLCHAIN_SRCDIR}
 	git reset --hard HEAD
-	git pull
 	git checkout ${GCC_GIT_BRANCH}
 	git pull
 }
@@ -747,7 +775,7 @@ check_glibc_hardcode ()
 	printf "\n\tIs GLIBC hard coded?\n"
 
 	# Change hard link from /{lib,lib64} to $TOOLCHAIN_LIBDIR
-	CHECK_GLIBC_HARDLINK=`grep "${TOOLCHAIN_LIBDIR}" ${X86_64_LDCONFIG}`
+	CHECK_GLIBC_HARDLINK=$(grep "${TOOLCHAIN_LIBDIR}" ${X86_64_LDCONFIG})
 if [[ $? == 0 ]] ; then
 	printf "\tYes. GLIBC hard code fix already applied.\n"
 elif [[ $? == 1 ]] ; then
@@ -817,7 +845,7 @@ check_ld_linker_path ()
 	printf "\n\tIs GCC using the proper linker?\n"
 
 	# This changes GCC's hard link from /lib/ld-linux-so.2 to $TOOLCHAIN_LIBDIR/ld-linux.so.2
-	CHECK_GCC_HARDLINK_32=`grep "${TOOLCHAIN_LIBDIR}" ${GCC_CONF_32_H}`
+	CHECK_GCC_HARDLINK_32=$(grep "${TOOLCHAIN_LIBDIR}" ${GCC_CONF_32_H})
 if [[ $? == 0 ]] ; then
 	printf "\tYes. 32-bit GCC linker fix already applied.\n"
 elif [[ $? == 1 ]] ; then
@@ -836,7 +864,7 @@ fi
 
 	# 64-bit hard link fix
 	# This changes GCC's hard link from /lib/ld-linux-x86-64.so.2 to $TOOLCHAIN_LIBDIR/ld-linux-x86-64.so.2
-	CHECK_GCC_HARDLINK_64=`grep "${TOOLCHAIN_LIBDIR}" ${GCC_CONF_64_H}`
+	CHECK_GCC_HARDLINK_64=$(grep "${TOOLCHAIN_LIBDIR}" ${GCC_CONF_64_H})
 if [[ $? == 0 ]] ; then
 	printf "\tYes. 64-bit GCC linker fix already applied.\n"
 elif [[ $? == 1 ]] ; then
@@ -953,14 +981,8 @@ first_pass_binutils ()
 
 	prepare_binutils
 
-if [[ ! -d "${BINUTILS_TOOLCHAIN_SRCDIR}/build" ]] ; then
 	mkdir -p ${BINUTILS_TOOLCHAIN_SRCDIR}/build
 	cd ${BINUTILS_TOOLCHAIN_SRCDIR}/build
-else
-	cd ${BINUTILS_TOOLCHAIN_SRCDIR}/build
-	make distclean
-	rm -rf ${BINUTILS_TOOLCHAIN_SRCDIR}/build/*
-fi
 
 	../configure \
 	--prefix=${TOOLCHAIN_BINDIR}/usr \
@@ -1000,14 +1022,8 @@ first_pass_glibc ()
 	printf "\n\tBuilding first pass GLIBC...\n"
 	sleep 1
 
-if [[ ! -d "${GLIBC_TOOLCHAIN_SRCDIR}/build" ]] ; then
 	mkdir -p ${GLIBC_TOOLCHAIN_SRCDIR}/build
 	cd ${GLIBC_TOOLCHAIN_SRCDIR}/build
-else
-	cd ${GLIBC_TOOLCHAIN_SRCDIR}/build
-	make distclean
-	rm -rf ${GLIBC_TOOLCHAIN_SRCDIR}/build/*
-fi
 
 	../configure \
 	--prefix=${TOOLCHAIN_BINDIR}/usr \
@@ -1044,14 +1060,8 @@ first_pass_gcc ()
 
 	prepare_gcc
 
-if [[ ! -d "${GCC_TOOLCHAIN_SRCDIR}/build" ]] ; then
 	mkdir -p ${GCC_TOOLCHAIN_SRCDIR}/build
 	cd ${GCC_TOOLCHAIN_SRCDIR}/build
-else
-	cd ${GCC_TOOLCHAIN_SRCDIR}/build
-	make distclean
-	rm -rf ${GCC_TOOLCHAIN_SRCDIR}/build/*
-fi
 
 	AR=${TOOLCHAIN_BINDIR}/usr/bin/ar \
 	AS=${TOOLCHAIN_BINDIR}/usr/bin/as \
@@ -1126,14 +1136,8 @@ second_pass_binutils ()
 
 	prepare_binutils
 
-if [[ ! -d "${BINUTILS_TOOLCHAIN_SRCDIR}/build" ]] ; then
 	mkdir -p ${BINUTILS_TOOLCHAIN_SRCDIR}/build
 	cd ${BINUTILS_TOOLCHAIN_SRCDIR}/build
-else
-	cd ${BINUTILS_TOOLCHAIN_SRCDIR}/build
-	make distclean
-	rm -rf ${BINUTILS_TOOLCHAIN_SRCDIR}/build/*
-fi
 
 	# Eliminates the need for 500 lines here
 	printf "\n\tUpdating PATH var...\n"
@@ -1188,14 +1192,8 @@ second_pass_glibc ()
 
 	check_glibc_hardcode
 
-if [[ ! -d "${GLIBC_TOOLCHAIN_SRCDIR}/build" ]] ; then
 	mkdir -p ${GLIBC_TOOLCHAIN_SRCDIR}/build
 	cd ${GLIBC_TOOLCHAIN_SRCDIR}/build
-else
-	cd ${GLIBC_TOOLCHAIN_SRCDIR}/build
-	make distclean
-	rm -rf ${GLIBC_TOOLCHAIN_SRCDIR}/build/*
-fi
 
 	# Half of these libraries still use /usr
 	../configure \
@@ -1232,14 +1230,8 @@ second_pass_gcc ()
 
 	prepare_gcc
 
-if [[ ! -d "${GCC_TOOLCHAIN_SRCDIR}/build" ]] ; then
 	mkdir -p ${GCC_TOOLCHAIN_SRCDIR}/build
 	cd ${GCC_TOOLCHAIN_SRCDIR}/build
-else
-	cd ${GCC_TOOLCHAIN_SRCDIR}/build
-	make distclean
-	rm -rf ${GCC_TOOLCHAIN_SRCDIR}/build/*
-fi
 
 	# libmpx fails to build (for now at least anyway, forget exact error)
 	# libsanitizer may fail to build as well, turning off to be safe
