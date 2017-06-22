@@ -7,8 +7,9 @@ written entirely in Bash.
 Probably needs a more creative project name.
 
 Recent changes:
+* Improved config handling
 * Now passes ShellCheck with no potential issues
-* Kernel headers bump to 4.11.3
+* Kernel headers bump to 4.11.6
 * Fix sanity check for non-hardened Gentoo systems
 
 Please leave any feedback here:
