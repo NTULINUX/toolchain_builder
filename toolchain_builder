@@ -292,12 +292,11 @@ fi
 if [[ "${GENTOO_PASS}" == 1 || "${GENERIC_TRUE}" == 1 ]] ; then
 	printf "\n\tSystem already passed compiler check.\n"
 else
-	unset GENTOO_TRUE
+	unset GENTOO_PASS
 	unset GENERIC_TRUE
 	printf "\n\tIs this a Gentoo system?\n"
 	if [[ $(ls /etc/env.d/gcc/config*) ]] ; then
 		printf "\tYes. Testing the build environment...\n"
-		GENTOO_TRUE=1
 		GCC_ENV_CONF=$(cat /etc/env.d/gcc/config*)
 		MAKE_PROFILE_TEST=$(ls -la /etc/portage/make.profile)
 		if [[ "${GCC_ENV_CONF}" == *vanilla || "${MAKE_PROFILE_TEST}" != *hardened* ]] ; then
