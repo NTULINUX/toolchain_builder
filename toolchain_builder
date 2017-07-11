@@ -536,7 +536,7 @@ fi
 # Unpack any required sources
 #
 
-prepare_sources ()
+unpack_sources ()
 {
 	printf "\\tUnpacking any sources if needed...\\n"
 
@@ -732,7 +732,7 @@ main ()
 
 	fetch_sources
 
-	prepare_sources
+	unpack_sources
 
 	verify_sources
 
