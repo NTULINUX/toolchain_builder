@@ -1208,7 +1208,6 @@ first_pass_gcc ()
 	NM="${TOOLCHAIN_BINDIR}"/usr/bin/nm \
 	OBJCOPY="${TOOLCHAIN_BINDIR}"/usr/bin/objcopy \
 	OBJDUMP="${TOOLCHAIN_BINDIR}"/usr/bin/objdump \
-	NM="${TOOLCHAIN_BINDIR}"/usr/bin/ld \
 	RANLIB="${TOOLCHAIN_BINDIR}"/usr/bin/ranlib \
 	READELF="${TOOLCHAIN_BINDIR}"/usr/bin/readelf \
 	STRIP="${TOOLCHAIN_BINDIR}"/usr/bin/strip \
@@ -1218,7 +1217,6 @@ first_pass_gcc ()
 	NM_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/nm \
 	OBJCOPY_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/objcopy \
 	OBJDUMP_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/objdump \
-	NM_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/ld \
 	RANLIB_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/ranlib \
 	READELF_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/readelf \
 	STRIP_FOR_TARGET="${TOOLCHAIN_BINDIR}"/usr/bin/strip \
