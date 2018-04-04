@@ -8,9 +8,10 @@ Probably needs a more creative project name.
 
 Recent changes:
 * Improved config handling
-* Now passes ShellCheck with no potential issues
-* Kernel headers bump to 4.12.4
-* Fix sanity check for non-hardened Gentoo systems
+* Kernel headers bump to 4.16
+* MPFR bump to 4.0.1
+* MPC bump to 1.1.0
+* ISL bump to 0.19
 
 Please leave any feedback here:
 

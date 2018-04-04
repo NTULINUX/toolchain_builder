@@ -1,10 +1,10 @@
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
-index f32197e..5924f56 100755
+index ad6c506c6..1d3b1ca34 100755
 --- a/libstdc++-v3/configure
 +++ b/libstdc++-v3/configure
-@@ -15014,8 +15014,8 @@ if test "$enable_shared" = yes; then
+@@ -15024,8 +15024,8 @@ if test "$enable_shared" = yes; then
    glibcxx_compiler_shared_flag="-D_GLIBCXX_SHARED"
-
+ 
  else
 -  glibcxx_lt_pic_flag=
 -  glibcxx_compiler_pic_flag=
@@ -12,14 +12,14 @@ index f32197e..5924f56 100755
 +  glibcxx_compiler_pic_flag="$lt_prog_compiler_pic_CXX"
    glibcxx_compiler_shared_flag=
  fi
-
+ 
 diff --git a/libstdc++-v3/configure.ac b/libstdc++-v3/configure.ac
-index 7d0fafa..eb71560 100644
+index 0ef96270c..e8adca717 100644
 --- a/libstdc++-v3/configure.ac
 +++ b/libstdc++-v3/configure.ac
 @@ -121,8 +121,8 @@ if test "$enable_shared" = yes; then
    glibcxx_compiler_shared_flag="-D_GLIBCXX_SHARED"
-
+ 
  else
 -  glibcxx_lt_pic_flag=
 -  glibcxx_compiler_pic_flag=
