@@ -87,7 +87,7 @@ sanity_check()
 {
 # Redirect stdout (1) and stderr (2) to /dev/null (keep quiet)
 # print error if type fails and exit with >0 exit status
-if [[ ${SYSTEM_OK} == 1 ]] ; then
+if [[ "${SYSTEM_OK}" == 1 ]] ; then
 	printf "\\n\\tSystem already checked for prerequisites, all ok.\\n"
 else
 	printf "\\n\\tChecking system for prerequisites...\\n"
@@ -169,9 +169,9 @@ else
 # I'm also not interested in testing this on other architectures
 	printf "\\n\\tDetecting kernel bitness...\\n"
 	ARCH_UNAME=$(uname -m)
-	if [[ ${ARCH_UNAME} == *64 ]] ; then
+	if [[ "${ARCH_UNAME}" == *64 ]] ; then
 		printf "\\t64-bit\\n"
-	elif [[ ${ARCH_UNAME} == *86 ]] ; then
+	elif [[ "${ARCH_UNAME}" == *86 ]] ; then
 		printf "\\t32-bit\\n"
 	else
 		printf "\\tUnable to detect bitness.
@@ -339,7 +339,7 @@ fi
 
 if [[ ! -f "${TOOLCHAIN_SRCDIR}"/gmp-"${GMP_VER}".tar.xz ]] ; then
 	printf "\\tDownloading GMP via wget...\\n"
-	wget -c ${GMP_LOC} || \
+	wget -c "${GMP_LOC}" || \
 	{
 		printf "\\tError downloading GMP-%s. Exiting.\\n" \
 		"${GMP_VER}" ; exit 1 ;
@@ -348,7 +348,7 @@ fi
 
 if [[ ! -f "${TOOLCHAIN_SRCDIR}"/mpfr-"${MPFR_VER}".tar.xz ]] ; then
 	printf "\\tDownloading MPFR via wget...\\n"
-	wget -c ${MPFR_LOC} || \
+	wget -c "${MPFR_LOC}" || \
 	{
 		printf "\\tError downloading MPFR-%s. Exiting.\\n" \
 		"${MPFR_VER}" ; exit 1 ;
@@ -357,7 +357,7 @@ fi
 
 if [[ ! -f "${TOOLCHAIN_SRCDIR}"/mpc-"${MPC_VER}".tar.gz ]] ; then
 	printf "\\tDownloading MPC via wget...\\n"
-	wget -c ${MPC_LOC} || \
+	wget -c "${MPC_LOC}" || \
 	{
 		printf "\\tError downloading MPC-%s.\\n Exiting.\\n" \
 		"${MPC_VER}" ; exit 1 ;
@@ -366,7 +366,7 @@ fi
 
 if [[ ! -f "${TOOLCHAIN_SRCDIR}"/isl-"${ISL_VER}".tar.xz ]] ; then
 	printf "\\tDownloading ISL via wget...\\n"
-	wget -c ${ISL_LOC} || \
+	wget -c "${ISL_LOC}" || \
 	{
 		printf "\\tError downloading ISL-%s.\\n Exiting.\\n" \
 		"${ISL_VER}" ; exit 1 ;
@@ -600,8 +600,8 @@ if [[ "${ARCH_UNAME}" == *64 ]] ; then
 
 		mkdir -p "${TOOLCHAIN_BINDIR}"/usr/lib64 || \
 		{
-			printf "\\tError creating ${TOOLCHAIN_BINDIR}/usr/lib64.\\n\\t%s\\n" \
-			"${REPORT_BUG_EXIT}" ; exit 1 ;
+			printf "\\tError creating %s.\\n\\t%s\\n" \
+			"${TOOLCHAIN_BINDIR}"/usr/lib64 "${REPORT_BUG_EXIT}" ; exit 1 ;
 		}
 
 		printf "\\tSetting TOOLCHAIN_LIBDIR...\\n"
@@ -610,13 +610,13 @@ if [[ "${ARCH_UNAME}" == *64 ]] ; then
 		printf "\\tCreating symlink...\\n"
 		ln -sfv "${TOOLCHAIN_BINDIR}"/usr/lib64 "${TOOLCHAIN_BINDIR}"/usr/lib
 	fi
-elif [[ ${ARCH_UNAME} == *86 ]] ; then
+elif [[ "${ARCH_UNAME}" == *86 ]] ; then
 	if [[ ! -d ${TOOLCHAIN_BINDIR}/usr/lib ]] ; then
 
 		mkdir -p "${TOOLCHAIN_BINDIR}"/usr/lib || \
 		{
-			printf "\\tError creating ${TOOLCHAIN_BINDIR}/usr/lib.\\n\\t%s\\n" \
-			"${REPORT_BUG_EXIT}" ; exit 1 ;
+			printf "\\tError creating %s.\\n\\t%s\\n" \
+			"${TOOLCHAIN_BINDIR}"/usr/lib "${REPORT_BUG_EXIT}" ; exit 1 ;
 		}
 
 		printf "\\tSetting TOOLCHAIN_LIBDIR...\\n"
@@ -853,7 +853,7 @@ if [[ -d "${BINUTILS_TOOLCHAIN_SRCDIR}"/build ]] ; then
 		cd "${BINUTILS_TOOLCHAIN_SRCDIR}"/build || \
 		{
 			printf "\\tError changing directory to %s.\\n\\t%s\\n" \
-			"${BINUTILS_TOOLCHAIN_SRCDIR}" "${REPORT_BUG_EXIT}" ; exit 1 ;
+			"${BINUTILS_TOOLCHAIN_SRCDIR}"/build "${REPORT_BUG_EXIT}" ; exit 1 ;
 		}
 
 		make distclean
@@ -915,7 +915,7 @@ if [[ -d "${GLIBC_TOOLCHAIN_SRCDIR}"/build ]] ; then
 		cd "${GLIBC_TOOLCHAIN_SRCDIR}"/build || \
 		{
 			printf "\\tError changing directory to %s.\\n\\t%s\\n" \
-			"${GLIBC_TOOLCHAIN_SRCDIR}" "${REPORT_BUG_EXIT}" ; exit 1 ;
+			"${GLIBC_TOOLCHAIN_SRCDIR}"/build "${REPORT_BUG_EXIT}" ; exit 1 ;
 		}
 
 		make distclean
