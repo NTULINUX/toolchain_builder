@@ -162,56 +162,7 @@ else
 		printf "\\tCannot find m4. Exiting.\\n" ; exit 1 ;
 	}
 
-	printf "\\tObvious required tools found.
-\\tChecking git version...\\n"
-
-	# Lexicographical order workaround
-	#
-	# Example:
-	#
-	# ---cut here---
-	#!/usr/bin/env bash
-	#string=1.2.3
-	#string2=1.10.3
-	#printf "\\tIs %s greater than %s?\\n" "${string}" "${string2}"
-	#if [[ "${string}" > "${string2}" ]] ; then
-	#	printf "\\t%s is greater than %s.\\n" "${string}" "${string2}"
-	#else
-	#	printf "\\t%s is greater than %s.\\n" "${string2}" "${string}"
-	#fi
-	#---cut here---
-	#
-	# This method below avoids the potential problem (depending on locale)
-	# of $string being possibly greater than $string2
-	#
-	# print $3 means to print only the third set of characters
-	# as git --version includes "git version" as part of the output.
-	#
-	# cut -d. means to remove (cut) decimals
-	# cut -fX means to only select this field.
-	# In this case, the fields are separated by a decimal (-d.)
-	# but also includes output before the first decimal, hence print $3 is used
-	# to avoid the first variable (GIT_VERSION_MAJOR) being "git version X"
-	#
-	GIT_VERSION=$(git --version | gawk '{print $3}')
-	GIT_VERSION_MAJOR=$(printf "%s" "${GIT_VERSION}" | cut -d. -f1)
-	GIT_VERSION_MINOR=$(printf "%s" "${GIT_VERSION}" | cut -d. -f2)
-	GIT_VERSION_PATCH=$(printf "%s" "${GIT_VERSION}" | cut -d. -f3)
-
-	if [[ "${GIT_VERSION_MAJOR}" -ge 1 ]] ; then
-		if [[ "${GIT_VERSION_MINOR}" -ge 8 ]] ; then
-			printf "\\tGit 1.8 or newer.\\n"
-		elif [[ "${GIT_VERSION_MINOR}" -eq 7 ]] ; then
-			if [[ "${GIT_VERSION_PATCH}" -ge 10 ]] ; then
-				printf "\\tGit 1.7.10 or newer\\n"
-			elif [[ "${GIT_VERSION_PATCH}" -le 10 ]] ; then
-					printf "\\tGit needs to be 1.7.10 or newer. Exiting.\\n"
-					exit 1
-			fi
-		fi
-	else
-		printf "\\tError detecting git version.\\n\\t%s\\n" "${REPORT_BUG_EXIT}"
-	fi
+	printf "\\tObvious required tools found.\\n"
 
 # Only x86/amd64 are supported due to GCC hard links
 # See function check_ld_linker_path for more info
@@ -328,9 +279,9 @@ GLIBC_GIT="git://sourceware.org/git/glibc.git"
 GCC_GIT="git://gcc.gnu.org/git/gcc.git"
 
 # Reduce bandwidth, speed up the cloning process
-BINUTILS_GIT_OPTS=(--depth"="1 -b "${BINUTILS_GIT_BRANCH}" --single-branch)
-GLIBC_GIT_OPTS=(--depth"="1 -b "${GLIBC_GIT_BRANCH}" --single-branch)
-GCC_GIT_OPTS=(--depth"="1 -b "${GCC_GIT_BRANCH}" --single-branch)
+BINUTILS_GIT_OPTS=(--depth"="1 -b "${BINUTILS_GIT_BRANCH}")
+GLIBC_GIT_OPTS=(--depth"="1 -b "${GLIBC_GIT_BRANCH}")
+GCC_GIT_OPTS=(--depth"="1 -b "${GCC_GIT_BRANCH}")
 
 LINUX_TOOLCHAIN_SRCDIR="${TOOLCHAIN_SRCDIR}/linux-${LINUX_VER}"
 LINUX_LOC="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${LINUX_VER}.tar.xz"
