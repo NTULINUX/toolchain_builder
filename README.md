@@ -1,17 +1,14 @@
 # toolchain_builder
 NTU's bleeding edge toolchain builder
 
-A complete native x86/amd64 toolchain builder,
-written entirely in Bash.
+A complete native amd64 Linux toolchain builder, written entirely in Bash.
+
+Based off of llvm-mingw
 
 Probably needs a more creative project name.
 
 Recent changes:
-* Improved config handling
-* Kernel headers bump to 4.16
-* MPFR bump to 4.0.1
-* MPC bump to 1.1.0
-* ISL bump to 0.19
+* Switched to LLVM/Clang, complete re-write
 
 Please leave any feedback here:
 

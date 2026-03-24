@@ -1,3 +1,2 @@
-toolchain_internal.config
-toolchain-src
-toolchain-bin
+llvm-project
+musl
