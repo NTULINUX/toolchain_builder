@@ -30,10 +30,5 @@ for dep in git cmake clang gmake ninja; do
     fi
 done
 
-./build-llvm.sh "${PREFIX}"
-./strip-llvm.sh "${PREFIX}"
 ./build-musl.sh "${PREFIX}"
-./build-compiler-rt.sh "${PREFIX}"
-./build-libcxx.sh "${PREFIX}"
-./build-compiler-rt.sh "${PREFIX}"
-./build-openmp.sh "${PREFIX}"
+./build-llvm.sh "${PREFIX}"

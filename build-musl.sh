@@ -40,7 +40,7 @@ cd "build"
 
 CC="clang" CFLAGS="${CFLAGS} -fuse-ld=lld" ../configure --prefix="${PREFIX}" --disable-shared
 
-make
+make -j$(nproc)
 make install
 
 cp ../COPYRIGHT "${PREFIX}/"
