@@ -22,8 +22,6 @@ if [ -z "${PREFIX}" ]; then
     exit 1
 fi
 
-export PATH="${PREFIX}/bin:${PATH}"
-
 if [ ! -d musl ]; then
     git clone git://git.musl-libc.org/musl
 else

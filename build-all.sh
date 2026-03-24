@@ -32,3 +32,7 @@ done
 
 ./build-musl.sh "${PREFIX}"
 ./build-llvm.sh "${PREFIX}"
+cp -arLv "cfg/x86_64-unknown-linux-gnu.cfg" "${PREFIX}/bin/"
+export PATH="${PREFIX}/bin:${PATH}"
+./build-musl.sh "${PREFIX}"
+./build-llvm.sh "${PREFIX}"
