@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2018 Martin Storsjo
+# Copyright (c) 2026 Alec Ari
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+set -e
+
+LLVM_BRANCH="release/22.x"
+
+PREFIX="${1}"
+if [ -z "${PREFIX}" ]; then
+    echo "${0} dest"
+    exit 1
+fi
+
+if [ ! -d llvm-project ]; then
+    git clone --depth=1 --single-branch -b "${LLVM_BRANCH}" https://github.com/llvm/llvm-project.git
+else
+    cd llvm-project
+    git pull
+    cd ..
+fi
+
+# Comment the line below to drastically speed up build
+#LTO=("-DLLVM_ENABLE_LTO=thin" "-DLLVM_PARALLEL_LINK_JOBS=8")
+
+cd "llvm-project/llvm"
+
+PROJECTS="clang;lld;polly"
+
+rm -rf "build"
+mkdir -p "build"
+cd "build"
+rm -rf CMake*
+
+# Flags added:
+#  -DLLVM_ENABLE_LIBCXX=ON
+#  -DLLVM_STATIC_LINK_CXX_STDLIB=ON
+# Removes all dependencies for GCC
+
+cmake \
+    -DCMAKE_C_FLAGS="-O3 -march=x86-64-v3" \
+    -DCMAKE_CXX_FLAGS="-O3 -march=x86-64-v3" \
+    -DCMAKE_C_COMPILER_TARGET="x86_64-unknown-linux-gnu" \
+    -DCMAKE_C_COMPILER="clang" \
+    -DCMAKE_CXX_COMPILER="clang++" \
+    -DLLVM_USE_LINKER=lld \
+    -DCMAKE_GENERATOR=Ninja \
+    -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DLLVM_BUILD_STATIC=ON \
+    -DLLVM_BUILD_TESTS=OFF \
+    -DLLVM_INCLUDE_TESTS=OFF \
+    -DLLVM_OPTIMIZED_TABLEGEN=ON \
+    -DLLVM_ENABLE_RTTI=OFF \
+    -DCLANG_INCLUDE_TESTS=OFF \
+    -DCLANG_ENABLE_OBJC_REWRITER=OFF \
+    -DCLANG_ENABLE_STATIC_ANALYZER=OFF \
+    -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
+    -DLLVM_ENABLE_ASSERTIONS=OFF \
+    -DLLVM_INCLUDE_EXAMPLES=OFF \
+    -DLLVM_BUILD_RUNTIME=ON \
+    -DLLVM_BUILD_BENCHMARKS=OFF \
+    -DLLVM_INCLUDE_BENCHMARKS=OFF \
+    -DLLVM_BUILD_INSTRUMENTED=OFF \
+    -DLLVM_ENABLE_PROJECTS="${PROJECTS}" \
+    -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind;openmp" \
+    -DLLVM_ENABLE_LIBCXX=ON \
+    -DLLVM_STATIC_LINK_CXX_STDLIB=ON \
+    -DCOMPILER_RT_USE_BUILTINS_LIBRARY=TRUE \
+    -DCOMPILER_RT_EXCLUDE_ATOMIC_BUILTIN=FALSE \
+    -DCOMPILER_RT_DEFAULT_TARGET_ONLY=TRUE \
+    -DCOMPILER_RT_BUILD_CTX_PROFILE=OFF \
+    -DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
+    -DCOMPILER_RT_BUILD_MEMPROF=OFF \
+    -DCOMPILER_RT_BUILD_ORC=OFF \
+    -DCOMPILER_RT_BUILD_PROFILE=OFF \
+    -DCOMPILER_RT_BUILD_SANITIZERS=OFF \
+    -DCOMPILER_RT_BUILD_XRAY=OFF \
+    -DLIBCXX_ENABLE_SHARED=OFF \
+    -DLIBCXX_ENABLE_STATIC=ON \
+    -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=TRUE \
+    -DLIBCXX_CXX_ABI=libcxxabi \
+    -DLIBCXX_USE_COMPILER_RT=ON \
+    -DLIBCXX_INSTALL_MODULES=ON \
+    -DLIBCXX_INCLUDE_TESTS=FALSE \
+    -DLIBCXXABI_ENABLE_SHARED=OFF \
+    -DLIBCXXABI_ENABLE_STATIC=ON \
+    -DLIBCXXABI_USE_COMPILER_RT=ON \
+    -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
+    -DLIBUNWIND_ENABLE_SHARED=OFF \
+    -DLIBUNWIND_ENABLE_STATIC=ON \
+    -DLIBUNWIND_USE_COMPILER_RT=TRUE \
+    -DLIBOMP_ENABLE_SHARED=FALSE \
+    -DLLVM_ENABLE_BINDINGS=OFF \
+    -DLLVM_TARGETS_TO_BUILD=X86 \
+    -DLLVM_INSTALL_TOOLCHAIN_ONLY=OFF \
+    "${LTO[@]}" \
+    ..
+
+cmake --build .
+cmake --install . --strip
+
+cp ../LICENSE.TXT "${PREFIX}/"

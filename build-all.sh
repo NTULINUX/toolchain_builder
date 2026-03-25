@@ -30,9 +30,23 @@ for dep in git cmake clang gmake ninja; do
     fi
 done
 
-./build-musl.sh "${PREFIX}"
-./build-llvm.sh "${PREFIX}"
-cp -arLv "cfg/x86_64-unknown-linux-gnu.cfg" "${PREFIX}/bin/"
-export PATH="${PREFIX}/bin:${PATH}"
-./build-musl.sh "${PREFIX}"
-./build-llvm.sh "${PREFIX}"
+# Build initial toolchain that we will remove later
+# This is required because Linux distributions tie LLVM to GCC
+./build-musl.sh "${PREFIX}-stage1"
+./build-llvm.sh "${PREFIX}-stage1"
+
+# Forces compiler to link with compiler-rt libunwind and libc++
+cp -rLv "cfg/x86_64-unknown-linux-gnu.cfg" "${PREFIX}-stage1/bin/"
+export PATH="${PREFIX}-stage1/bin:${PATH}"
+
+# Build the final toolchain without any dependency for GCC
+# This adds:
+#   -DLLVM_ENABLE_LIBCXX=ON
+#   -DLLVM_STATIC_LINK_CXX_STDLIB=ON
+./build-musl.sh "${PREFIX}-final"
+./build-final.sh "${PREFIX}-final"
+
+# Remove initial toolchain
+rm -rf "${PREFIX:?}-stage1"
+cp -rLv "cfg/x86_64-unknown-linux-gnu.cfg" "${PREFIX}-final/bin/"
+mv -v "${PREFIX}-final" "${PREFIX}"
