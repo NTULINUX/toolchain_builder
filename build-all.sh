@@ -36,7 +36,7 @@ done
 ./build-llvm.sh "${PREFIX}-stage1"
 
 # Forces compiler to link with compiler-rt libunwind and libc++
-cp -rLv "cfg/x86_64-unknown-linux-gnu.cfg" "${PREFIX}-stage1/bin/"
+cp -rLv "cfg/x86_64-llvm-linux-gnu.cfg" "${PREFIX}-stage1/bin/"
 export PATH="${PREFIX}-stage1/bin:${PATH}"
 
 # Build the final toolchain without any dependency for GCC
@@ -48,5 +48,5 @@ export PATH="${PREFIX}-stage1/bin:${PATH}"
 
 # Remove initial toolchain
 rm -rf "${PREFIX:?}-stage1"
-cp -rLv "cfg/x86_64-unknown-linux-gnu.cfg" "${PREFIX}-final/bin/"
+cp -rLv "cfg/x86_64-llvm-linux-gnu.cfg" "${PREFIX}-final/bin/"
 mv -v "${PREFIX}-final" "${PREFIX}"

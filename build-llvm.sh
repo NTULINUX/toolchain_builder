@@ -49,6 +49,7 @@ cmake \
     -DCMAKE_C_FLAGS="-O3 -march=x86-64-v3" \
     -DCMAKE_CXX_FLAGS="-O3 -march=x86-64-v3" \
     -DCMAKE_C_COMPILER_TARGET="x86_64-unknown-linux-gnu" \
+    -DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-llvm-linux-gnu" \
     -DCMAKE_C_COMPILER="clang" \
     -DCMAKE_CXX_COMPILER="clang++" \
     -DLLVM_USE_LINKER=lld \
@@ -58,6 +59,7 @@ cmake \
     -DBUILD_SHARED_LIBS=OFF \
     -DLLVM_BUILD_STATIC=ON \
     -DLLVM_BUILD_TESTS=OFF \
+    -DLLVM_BUILD_LLVM_DYLIB=ON \
     -DLLVM_INCLUDE_TESTS=OFF \
     -DLLVM_OPTIMIZED_TABLEGEN=ON \
     -DLLVM_ENABLE_RTTI=OFF \
