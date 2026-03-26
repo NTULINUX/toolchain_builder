@@ -36,7 +36,7 @@ rm -rf "build"
 mkdir -p "build"
 cd "build"
 
-CC="clang" CFLAGS="${CFLAGS} -fuse-ld=lld" ../configure --prefix="${PREFIX}" --disable-shared
+CC="clang" CFLAGS="${CFLAGS} -march=x86-64-v3 -fuse-ld=lld" ../configure --prefix="${PREFIX}" --disable-shared
 
 make -j$(nproc)
 make install
