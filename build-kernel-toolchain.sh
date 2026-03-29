@@ -59,52 +59,46 @@ cmake \
     -DBUILD_SHARED_LIBS=OFF \
     -DLLVM_BUILD_STATIC=ON \
     -DLLVM_BUILD_TESTS=OFF \
-    -DLLVM_BUILD_LLVM_DYLIB=ON \
+    -DLLVM_BUILD_LLVM_DYLIB=OFF \
     -DLLVM_INCLUDE_TESTS=OFF \
     -DLLVM_OPTIMIZED_TABLEGEN=ON \
     -DLLVM_ENABLE_RTTI=OFF \
     -DCLANG_INCLUDE_TESTS=OFF \
     -DCLANG_ENABLE_OBJC_REWRITER=OFF \
     -DCLANG_ENABLE_STATIC_ANALYZER=OFF \
-    -DCLANG_DEFAULT_LINKER=lld \
-    -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
-    -DCLANG_DEFAULT_RTLIB=compiler-rt \
-    -DCLANG_DEFAULT_UNWINDLIB=libunwind \
-    -DCLANG_DEFAULT_OPENMP_RUNTIME=libomp \
     -DLLVM_ENABLE_ASSERTIONS=OFF \
     -DLLVM_INCLUDE_EXAMPLES=OFF \
-    -DLLVM_BUILD_RUNTIME=ON \
+    -DLLVM_BUILD_RUNTIME=OFF \
     -DLLVM_BUILD_BENCHMARKS=OFF \
     -DLLVM_INCLUDE_BENCHMARKS=OFF \
     -DLLVM_BUILD_INSTRUMENTED=OFF \
     -DLLVM_ENABLE_PROJECTS="${PROJECTS}" \
-    -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind;openmp" \
-    -DCOMPILER_RT_USE_BUILTINS_LIBRARY=TRUE \
-    -DCOMPILER_RT_EXCLUDE_ATOMIC_BUILTIN=FALSE \
-    -DCOMPILER_RT_DEFAULT_TARGET_ONLY=TRUE \
-    -DLIBCXX_ENABLE_SHARED=OFF \
-    -DLIBCXX_ENABLE_STATIC=ON \
-    -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=TRUE \
-    -DLIBCXX_CXX_ABI=libcxxabi \
-    -DLIBCXX_USE_COMPILER_RT=ON \
-    -DLIBCXX_INSTALL_MODULES=ON \
-    -DLIBCXX_INCLUDE_TESTS=FALSE \
-    -DLIBCXXABI_ENABLE_SHARED=OFF \
-    -DLIBCXXABI_ENABLE_STATIC=ON \
-    -DLIBCXXABI_USE_COMPILER_RT=ON \
-    -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
-    -DLIBUNWIND_ENABLE_SHARED=OFF \
-    -DLIBUNWIND_ENABLE_STATIC=ON \
-    -DLIBUNWIND_USE_COMPILER_RT=TRUE \
-    -DLIBOMP_ENABLE_SHARED=OFF \
-    -DLIBOMP_LIBFLAGS="-lm" \
     -DLLVM_ENABLE_BINDINGS=OFF \
     -DLLVM_TARGETS_TO_BUILD=X86 \
-    -DLLVM_INSTALL_TOOLCHAIN_ONLY=OFF \
+    -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
+    -DLLVM_TOOLCHAIN_TOOLS="llvm-ar;llvm-ranlib;llvm-objdump;llvm-rc;llvm-nm;llvm-strings;llvm-readobj;llvm-objcopy;llvm-strip;llvm-addr2line;llvm-symbolizer;llvm-readelf;llvm-size;llvm-lib" \
     "${LTO[@]}" \
     ..
 
 cmake --build .
 cmake --install . --strip
+
+rm -rf "${PREFIX:?}"/{libexec,share/{opt-viewer,scan-build,scan-view,man/man1/scan-build*},include/{clang,clang-c,clang-tidy,lld,llvm,llvm-c,lldb}}
+
+find "${PREFIX:?}/bin" -mindepth 1 -maxdepth 1 \( \
+    -name "amdgpu-arch" -o -name "bugpoint" -o -name "c-index-test" -o -name "clangd-*" -o \
+    -name "darwin-debug" -o -name "diagtool" -o -name "dsymutil" -o -name "find-all-symbols" -o \
+    -name "hmaptool" -o -name "ld64.lld*" -o -name "llc" -o -name "lldb-*" -o -name "lli" -o \
+    -name "modularize" -o -name "nvptx-arch" -o -name "obj2yaml" -o -name "offload-arch" -o -name "opt" -o \
+    -name "pp-trace" -o -name "sancov" -o -name "sanstats" -o -name "scan-build" -o \
+    -name "scan-view" -o -name "split-file" -o -name "verify-uselistorder" -o -name "wasm-ld" -o \
+    -name "yaml2*" -o -name "libclang.dll" -o -name "*LTO.dll" -o -name "*Remarks.dll" -o -name "*.bat" -o \
+    \( -name "clang-*" ! -name "*[0-9]" ! -name "clang-scan-deps" ! -name "clang-cpp" ! -name "clang-format" \) \) -delete
+
+find "${PREFIX:?}/lib" -mindepth 1 -maxdepth 1 \( \
+    -name "*.so*" -o -name "*.dylib*" -o -name "cmake" -o \
+    -name "*.a" -o -name "*.dll.a" \) -exec rm -rf {} +
+
+find "${PREFIX:?}/share/clang" -mindepth 1 -maxdepth 1 ! -name "clang-format*" -exec rm -rf {} +
 
 cp ../LICENSE.TXT "${PREFIX}/"
