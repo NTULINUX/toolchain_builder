@@ -101,4 +101,6 @@ find "${PREFIX:?}/lib" -mindepth 1 -maxdepth 1 \( \
 
 find "${PREFIX:?}/share/clang" -mindepth 1 -maxdepth 1 ! -name "clang-format*" -exec rm -rf {} +
 
+cp -rLv cfg/x86_64-llvm-linux-gnu.cfg "${PREFIX}/bin/"
+
 cp ../LICENSE.TXT "${PREFIX}/"
