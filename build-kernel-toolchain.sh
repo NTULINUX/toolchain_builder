@@ -36,7 +36,7 @@ fi
 # Comment the line below to drastically speed up build
 #LTO=("-DLLVM_ENABLE_LTO=thin" "-DLLVM_PARALLEL_LINK_JOBS=8")
 
-cd "llvm-project/llvm"
+pushd "llvm-project/llvm"
 
 PROJECTS="clang;lld;polly"
 
@@ -63,6 +63,10 @@ cmake \
     -DLLVM_INCLUDE_TESTS=OFF \
     -DLLVM_OPTIMIZED_TABLEGEN=ON \
     -DLLVM_ENABLE_RTTI=OFF \
+    -DLLVM_ENABLE_LIBEDIT=OFF \
+    -DLLVM_ENABLE_LIBXML2=OFF \
+    -DLLVM_ENABLE_ZLIB=OFF \
+    -DLLVM_ENABLE_ZSTD=OFF \
     -DCLANG_INCLUDE_TESTS=OFF \
     -DCLANG_ENABLE_OBJC_REWRITER=OFF \
     -DCLANG_ENABLE_STATIC_ANALYZER=OFF \
@@ -101,6 +105,8 @@ find "${PREFIX:?}/lib" -mindepth 1 -maxdepth 1 \( \
 
 find "${PREFIX:?}/share/clang" -mindepth 1 -maxdepth 1 ! -name "clang-format*" -exec rm -rf {} +
 
-cp -rLv cfg/x86_64-llvm-linux-gnu.cfg "${PREFIX}/bin/"
-
 cp ../LICENSE.TXT "${PREFIX}/"
+
+popd
+
+cp -rLv cfg/x86_64-llvm-linux-gnu.cfg "${PREFIX}/bin/"
